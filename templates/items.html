@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title></title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap/css/bootstrap.min.css') }}" />
+    <link href="{{ url_for('static', filename='css/bootstrap/css/carousel.css') }}" rel="stylesheet">
+
+</head>
+<body ng-app="helloApp" ng-controller="itemCtrl" ng-init="getItems()">
+<!--
+<div>
+            <div  class="inner" style="margin-left:5%; margin-right:5%">
+              <h3 class="masthead-brand">星桥信息科技有限公司</h3>
+              <ul class="nav masthead-nav">
+                <li class="active"><a href="{{ url_for('home') }}">主页</a></li>
+                <li><a href="{{ url_for('assess') }}">免费筛查</a></li>
+                <li><a href="{{ url_for('Organization') }}">机构查询</a></li>
+              </ul>
+            </div>
+          </div>
+-->
+<div class="navbar-wrapper">
+      <div class="container">
+
+        <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="{{ url_for('home') }}">星桥信息</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li class="active"><a href="#">主页</a></li>
+                <li><a href=" {{ url_for('assess') }}">免费筛查</a></li>
+                <li><a href=" {{ url_for('Organization') }}">机构查询</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">更多功能 <span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a href="#">用户登录</a></li>
+                    <li><a href="#">机构登录</a></li>
+                    <li><a href="#">合作洽谈</a></li>
+                    <li class="divider"></li>
+                    <li class="dropdown-header">相关链接</li>
+                    <li><a href="#">百度</a></li>
+                    <li><a href="#">Google</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+<div class="container" style="margin-top: 50px; background-color: #ffffff">
+
+
+    <hr>
+  <h4>请选择进行评估：</h4> <hr/>
+    <div class="checkbox">
+        <table border="0">
+          <tr ng-repeat="item in items" ng-cloak>
+            <td><label><input type="checkbox" name="assessCheckbox"  ng-value="item['score']" ></label></td>
+            <td ng-bind="item['title']" style="margin-left: 0"></td>
+          </tr>
+
+        </table>
+    </div>
+     <hr/>
+  <input class="btn btn-primary center-block" ng-click="Mysubmit()" type="submit" value=" 确 定 ">
+
+
+
+    <!--   modal   -->
+<!-- 按钮触发模态框
+<button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+	开始演示模态框
+</button>
+ -->
+<!-- 模态框（Modal） -->
+<div class="modal fade"  id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					&times;
+				</button>
+				<!--
+                <h4 class="modal-title" id="myModalLabel">
+					模态框（Modal）标题
+				</h4>
+				-->
+			</div>
+			<div class="modal-body" id="divContent">
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+				</button>
+				<button type="submit" class="btn btn-primary" ng-click="knowMore()">
+					了解更多
+				</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+	</div>
+  <!-- modal -->
+
+    <br/>
+  <hr/>
+
+
+    <!--
+    <div class="row footer-bottom">
+      <ul class="list-inline text-center">
+        <li>版权所有：上海星桥信息科技有限公司</li><li>| 客服电话：15900612582</li>
+      </ul>
+    </div>
+    -->
+</div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='jquery-1.12.2.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='angular.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='css/bootstrap/js/js/bootstrap.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='angular-cookie.js') }}"></script>
+<script type="text/javascript">
+
+    var app = angular.module('helloApp', ['ipCookie']);
+
+    app.controller('itemCtrl', ['$scope', '$http', '$window','$location','ipCookie', function($scope, $http,$window,$location,ipCookie) {
+
+      $scope.items = [];
+      $scope.grade ="";
+
+      $scope.getItems = function() {
+        $http({
+          method: 'GET',
+          url: '/get_assess/'
+        }).success(function (data, status, headers, config) {
+          //alert("success");
+          $scope.items = data['items'];
+        }).error(function(data, status, headers, config) {
+
+        });
+      };
+
+
+      //-----knowMore----
+//      $scope.knowMore=function(){
+//        alert("More");
+//        $http({
+//            method: 'POST',
+//            url: '/get_result_more/',
+//            data: {
+//              'result':"1"
+//            }
+//          }).success(function (data, status, headers, config) {
+//
+//          alert(data['item']);
+//        }).error(function(data, status, headers, config) {
+//
+//        });
+//      }
+
+
+      //--------
+      $scope.knowMore = function() {
+        ipCookie('grade',$scope.grade,{path:'/',expires:14});
+        location.href = "/result_more/"
+      }
+
+      $scope.Mysubmit=function(){
+
+        //alert("success");
+        var g = 0;
+
+        var blackName = document.getElementsByName("assessCheckbox");
+        for(var i = 0; i < blackName.length; i++)
+        {
+          if(blackName[i].checked == true)
+          {
+            var a = blackName[i].value;
+            g = g + parseInt(a);
+
+          }
+        }
+
+        //alert(g);
+        $scope.grade = g
+        $http({
+            method: 'POST',
+            url: '/get_result/',
+            data: {
+              'grade':g,
+            }
+          }).success(function (data, status, headers, config) {
+          $scope.assessResult = data['result'];
+          //alert("dfd\\nsdfe");
+          $('#myModal').modal();
+          angular.element(document.getElementById('divContent')).html('得分为'+ g.toString()+'分'+$scope.assessResult+'\n');
+
+        }).error(function(data, status, headers, config) {
+
+        });
+        }
+
+      }]);
+
+  </script>
+
+<footer>
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>&copy; 2014 Company, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
+</footer>
+</body>
+</html>

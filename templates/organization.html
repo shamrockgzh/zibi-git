@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html ng-app="testapp">
+<head>
+  <meta charset="UTF-8" name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title></title>
+
+
+   <style>
+        [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+        display: none !important;
+        }
+
+    </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap/css/bootstrap.min.css') }}" />
+  <link href="{{ url_for('static', filename='css/bootstrap/css/carousel.css') }}" rel="stylesheet">
+
+<script type="text/javascript" src="{{ url_for('static', filename='jquery-1.12.2.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='angular.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='css/bootstrap/js/js/bootstrap.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='angular-cookie.js') }}"></script>
+</head>
+
+
+<body  ng-app="testapp" ng-controller="organizationCtrl" ng-init="getOrganization()">
+<div >
+<div class="container" style="background-color: #5bc0de">
+  <div class="navbar-wrapper">
+      <div class="container">
+
+        <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="{{ url_for('home') }}">星桥信息</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li class="active"><a href="#">主页</a></li>
+                <li><a href=" {{ url_for('assess') }}">免费筛查</a></li>
+                <li><a href=" {{ url_for('Organization') }}">机构查询</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">更多功能 <span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a href="#">用户登录</a></li>
+                    <li><a href="#">机构登录</a></li>
+                    <li><a href="#">合作洽谈</a></li>
+                    <li class="divider"></li>
+                    <li class="dropdown-header">相关链接</li>
+                    <li><a href="#">百度</a></li>
+                    <li><a href="#">Google</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+
+<br/><br/><hr/>
+
+  <div class="row" >
+    <div class="col-md-4">
+      <select class="form-control">
+        <option>上海市:</option>
+      </select>
+    </div>
+
+    <div class="col-md-4" >
+      <select class="form-control" ng-model="vm.dis"
+              ng-options="c.label for c in addr.provinces[0].districts">
+        <option value="">-- 请选择区 --</option>
+      </select>
+    </div>
+
+  </div>
+<br/>
+  <div class="input-group col-md-8">
+    <input type="text" class="form-control input-lg" ng-model="orgName"><span class="input-group-addon btn btn-primary" ng-click="selectOrg(vm.pro.label,vm.cit.label,vm.dis.label)">搜索</span>
+  </div>
+
+  <br/>
+
+
+
+<br/>
+
+<!-- 机构列表 -->
+
+
+<div class="panel panel-default">
+	<div class="panel-heading">机构查询</div>
+  <table>
+  <tr ng-repeat="temp in NewOrgItems" ng-cloak>
+          <!--<td>名字:<br/>-->
+              <!--人数:<br/>-->
+              <!--简介:-->
+          <!--</td>-->
+
+          <td>
+            <a ng-click="get_org_intro(temp['id'])">##temp['name']##</a><br/>
+            <!--##temp['NumPeople']##<br/>-->
+            <!--##temp['abstract']##-->
+
+          </td>
+        </tr>
+	</table>
+</div>
+
+  <div class="alert alert-dismissable alert-warning" ng-if = "NewOrgItems.length==0">
+    <div style=" text-align: center;">
+    <p>没有搜索结果</p>
+    </div>
+  </div>
+  <br/>
+  <hr/>
+    <div class="row footer-bottom">
+      <ul class="list-inline text-center">
+        <li>版权所有：上海星桥信息科技有限公司</li><li>| 客服电话：15900612582</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+    var app = angular.module('testapp', ['ipCookie']);
+app.config(function($interpolateProvider) {
+  $interpolateProvider.startSymbol('##');
+  $interpolateProvider.endSymbol('##');
+});
+    app.controller('organizationCtrl', ['$scope', '$http', '$window','$location', 'ipCookie',function($scope, $http,$window, $location,ipCookie) {
+
+      $scope.orgName = "";
+      $scope.organizations = [];
+      $scope.NewOrgItems = [];
+      $scope.getOrganization = function() {
+        $http({
+          method: 'GET',
+          url: '/get_organization/',
+
+        }).success(function (data, status, headers, config) {
+          console.log(data);
+          $scope.organizations = data['organization'];
+          $scope.NewOrgItems = data['organization'];
+        }).error(function(data, status, headers, config) {
+
+        });
+      };
+
+//选择结果
+
+
+    $scope.selectOrg = function(aaa,bbb,ccc) {
+      //地区选择;
+      j=0;
+      $scope.NewOrgItems=[];
+      for (i in $scope.organizations){
+        if($scope.organizations[i]['district']==ccc){
+          $scope.NewOrgItems[j++]=$scope.organizations[i];
+        }
+      }
+
+      //关键字查询
+      var selectOrgs = [];
+      var str = $scope.orgName;
+      var num = str.length;
+      //alert(num);
+      var index=0;
+      for(var ii=0;ii<num;ii++){
+        for(jj in $scope.organizations){
+          if($scope.organizations[jj]['name'].indexOf(str[ii])>=0){
+            //alert('存在'+str[ii]);
+            selectOrgs[index++]=$scope.organizations[jj];
+          }
+        }
+      }
+
+
+      //合并地区查询和字符查询
+
+      //1.将相同的去掉
+      for(aa in selectOrgs){
+        for(bb in $scope.NewOrgItems){
+          if (selectOrgs[aa]['name']==$scope.NewOrgItems[bb]['name']){
+
+            $scope.NewOrgItems.slice(bb,1);
+          }
+
+        }
+      }
+//
+//      for(aa in $scope.NewOrgItems){
+//        for(bb in selectOrgs){
+//          if ($scope.NewOrgItems[aa]['name']==selectOrgs[bb]['name']){
+//
+//            selectOrgs.slice(bb,1);
+//          }
+//
+//        }
+//      }
+      //2.把查询中有的给出
+      $scope.NewOrgItems = selectOrgs.concat($scope.NewOrgItems);
+
+  };
+
+
+      //更多机构介绍
+      $scope.get_org_intro = function(orgId){
+        ipCookie('orgId', orgId, {path: '/', expires: 14});
+
+        $window.location = '/get_org_intro1/';
+      };
+
+
+
+    $scope.addr={};
+    $scope.addr.provinces=[
+      {
+        label:'上海市',
+        districts:[
+        {
+          label:'普陀区'
+        },
+        {
+          label:'徐汇区'
+        },
+        {
+          label:'静安区'
+        },
+        {
+          label:'闵行区'
+        },
+        {
+          label:'黄浦区'
+        },
+        {
+          label:'长宁区'
+        },
+        {
+          label:'虹口区'
+        },
+        {
+          label:'杨浦区'
+        },
+        {
+          label:'宝山区'
+        },
+        {
+          label:'嘉定区'
+        },
+        {
+          label:'浦东新区'
+        },
+        {
+          label:'金山区'
+        },
+              {
+          label:'松江区'
+        },
+        {
+          label:'青浦区'
+        },
+        {
+          label:'奉贤区'
+        },
+        {
+          label:'南汇区'
+        },
+        {
+          label:'崇明县'
+        },
+
+
+        ],
+      },
+
+    ];
+
+
+
+
+
+
+
+      }]);
+
+  </script>
+</body>
+</html>

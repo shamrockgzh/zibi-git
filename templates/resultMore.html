@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title></title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap/css/bootstrap.min.css') }}" />
+   <!-- Custom styles for this template -->
+  <link href="{{ url_for('static', filename='css/bootstrap/css/carousel.css') }}" rel="stylesheet">
+</head>
+<body ng-app="helloApp" ng-controller="resultMoreCtrl" ng-init="getResultMore()">
+<div class="navbar-wrapper">
+      <div class="container">
+
+        <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="{{ url_for('home') }}">星桥信息</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li class="active"><a href="#">主页</a></li>
+                <li><a href=" {{ url_for('assess') }}">免费筛查</a></li>
+                <li><a href=" {{ url_for('Organization') }}">机构查询</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">更多功能 <span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a href="#">用户登录</a></li>
+                    <li><a href="#">机构登录</a></li>
+                    <li><a href="#">合作洽谈</a></li>
+                    <li class="divider"></li>
+                    <li class="dropdown-header">相关链接</li>
+                    <li><a href="#">百度</a></li>
+                    <li><a href="#">Google</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+<br/><br/><hr/><br/>
+<div class="container">
+  <div class="view">
+<div class="list-group" contenteditable="true">
+<h4 class="list-group-item active">更多内容:</h4>
+<div class="list-group-item" >
+    <pre>
+      <h4 style="text-indent: 1cm;" ng-bind="result" ></h4>
+    </pre>
+</div>
+</div>
+</div>
+<br/>
+  <hr/>
+    <div class="row footer-bottom">
+      <ul class="list-inline text-center">
+        <li>版权所有：上海星桥信息科技有限公司</li><li>| 客服电话：15900612582</li>
+      </ul>
+    </div>
+
+</div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='jquery-1.12.2.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='angular.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='css/bootstrap/js/js/bootstrap.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='angular-cookie.js') }}"></script>
+<script type="text/javascript">
+
+    var app = angular.module('helloApp', ['ipCookie']);
+
+    app.controller('resultMoreCtrl', ['$scope', '$http', '$window','$location','ipCookie', function($scope, $http,$window,$location,ipCookie) {
+
+      $scope.items = [];
+        $scope.result = "";
+      $scope.getResultMore = function() {
+        $http({
+          method: 'GET',
+          url: '/get_result_more/',
+            headers: {
+                'grade': ipCookie('grade')
+            },
+        }).success(function (data, status, headers, config) {
+
+          $scope.result = data['resultMore'];
+          //alert($scope.result);
+        }).error(function(data, status, headers, config) {
+
+        });
+      };
+
+
+
+      }]);
+
+  </script>
+</body>
+</html>
