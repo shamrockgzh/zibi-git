@@ -2,9 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>登录</title>
 </head>
-<body>
+﻿<body ng-app="bookhouse.main.app.signIn" ng-controller="signInCtrl">
+<form name="myForm" novalidate>
+    <p id="id02"><a href="/account/sign-up/">注册</a></p>
+
+    <div>
+        用户名:
+        <input type="text" name="myName" ng-model="name" placeholder="用户名" required></br>
+        <div ng-show="myForm.myName.$error.required">请填写用户名</div>
+        密  码:
+        <input type="password" ng-model="password" placeholder="密码" required><br>
+        <div ng-show="myForm.myName.$error.required">请填写密码</div>
+
+        </br>
+        <input id="id01" ng-click="Mysubmit()" type="submit" value="登陆">
+
+
+    </div>
+</form>
+
+<script type="text/javascript" src="{{ url_for('static', filename='src/assets/lib/angular/angular.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='src/assets/lib/angular-cookie/angular-cookie.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='src/assets/js/sign_in.js' )}}"> </script>
 
 </body>
 </html>

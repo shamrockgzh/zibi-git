@@ -2,9 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>注册</title>
 </head>
-<body>
+﻿
+<body ng-app="bookhouse.main.app.signUp" ng-controller="signUpCtrl">
+<form name="myForm" novalidate>
+<div>
+    用户名:
+    <input type="text" name="myName" ng-model="name" placeholder="用户名" required></br>
+    <div ng-show="myForm.myName.$error.required">请填写用户名</div>
+    密 码:
+    <input type="password" ng-model="password" placeholder="密码" required><br>
+    <div ng-show="myForm.myName.$error.required">请填写密码</div>
+    性别:
+    <input type="radio" ng-model="gender" value="1" />男
+    <input type="radio" ng-model="gender" value="2" />女
 
-</body>
+    </br><input ng-click="Mysubmit()" type="submit" value="注册">
+</div>
+</form>
+<script type="text/javascript" src="{{ url_for('static', filename='jquery-1.12.2.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='angular.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='css/bootstrap/js/js/bootstrap.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='angular-cookie.js') }}"></script>
+<script type="text/javascript">
+
+   ﻿var signUpApp = angular.module('bookhouse.main.app.signUp', ['ipCookie']);
+
+
+    signUpApp.controller('signUpCtrl', ['$scope', '$http','ipCookie','$window', function($scope, $http,ipCookie,$window) {
+        $scope.name = null;
+        $scope.password = null;
+        $scope.gender = '1';
+
+        $scope.Mysubmit=function() {
+            $http({
+                method: 'POST',
+                url: '/api/account/sign-up/',
+                data: {
+                    'name': $scope.name,
+                    'password': $scope.password,
+                    'gender':parseInt($scope.gender),
+                }
+            }).success(function (data, status, headers, config) {
+
+                ipCookie('access_token', data['data']['token'], {path: '/', expires: 14});
+                ipCookie('access_name', data['data']['name'], {path: '/', expires: 14});
+                $window.location = '/sign-in/success/'
+            }).error(function (data, status, headers, config) {
+
+            });
+        };
+    }]);
+  </script>
 </html>

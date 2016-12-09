@@ -2,7 +2,9 @@
 
 from flask import Flask, abort, jsonify, render_template, request, make_response, send_from_directory
 from flask.ext.sqlalchemy import SQLAlchemy
-
+from main.misc.errors import ViewProcessJump
+from cerberus import Validator
+import os
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -58,6 +60,197 @@ class orgIntro(db.Model):
         foreign_keys = [org_id],primaryjoin='orgIntro.org_id == organization.id',
         backref=db.backref('orgIntro', cascade='all, delete-orphan')
     )
+
+#普通用户
+GENDER_OPTIONS = {
+    'MALE': 1,
+    'FEMALE': 2,
+}
+
+class UserOrdinary(db.Model):
+    __tablename__ = 'users_ordinary'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(32), nullable=False, unique=True)
+    password = db.Column(db.String(32))
+    gender = db.Column(db.Integer, nullable=False)
+
+#机构用户
+
+#------------------------------------注册登录-------------------------------------------
+
+
+API_FAIL_CODES['SIGN_UP'] = {
+    'USER_NAME_EXISTED': 1,
+}
+
+
+#注册页面
+@app.route('/account/sign-up/', methods=['GET'])
+def sign_up_page():
+    return render_template('sign_up.html')
+
+
+#注册验证
+@app.route('/api/account/sign-up/', methods=['POST'])
+def sign_up_api():
+    if request.method == 'POST':
+        try:
+
+            request_data = request.json
+            #数据为空
+            if request_data is None:
+                raise ViewProcessJump(code='ILLEGAL_USER_INPUT')
+            #验证器
+            validator = Validator({
+                'name': {
+                    'required': True,
+                    'type': 'string',
+                    'maxlength': 16,
+                },
+                'password': {
+                    'required': True,
+                    'type': 'string',
+                    'maxlength': 32,
+                },
+                'gender': {
+                    'required': True,
+                    'type': 'integer',
+                    'allowed': GENDER_OPTIONS.values(),
+                },
+            })
+            #数据不符合验证器格式
+            if not validator.validate(request_data):
+                raise ViewProcessJump(code='ILLEGAL_USER_INPUT')
+
+            name = validator.document.get('name')
+            password = validator.document.get('password')
+            gender = validator.document.get('gender')
+
+            user_existed = User.query.filter(db.text('name = :temp')).params(temp=name).first()
+
+            if user_existed:
+                raise ViewProcessJump(code='USER_NAME_EXISTED')
+
+            user = User()
+            db.session.add(user)
+            user.name = name
+            user.password = password
+            user.gender = gender
+            db.session.commit()
+
+            resp = {
+                'status': 'success',
+                'data': {
+                    'token': str(user.id),
+                    'name': user.name,
+
+                },
+            }
+
+            return jsonify(**resp)
+        #错误
+        except ViewProcessJump as e:
+            if e.code in (
+                    'ILLEGAL_USER_INPUT',
+            ):
+                abort(400)
+            elif e.code in (
+                    'USER_NAME_EXISTED',
+            ):
+                resp = {
+                    'status': 'fail',
+                    'data': {
+                        'code': API_FAIL_CODES['SIGN_UP']['USER_NAME_EXISTED'],
+                    },
+                }
+                return jsonify(**resp)
+            else:
+                assert False
+
+
+#登陆界面
+@app.route('/account/sign-in/', methods=['GET'])
+def sign_in_page():
+    return render_template('sign_in.html')
+
+
+#登陆验证
+@app.route('/api/account/sign-in/', methods=['POST'])
+def sign_in_api():
+    if request.method == 'POST':
+        try:
+            request_data = request.json
+            #数据为空
+            if request_data is None:
+                raise ViewProcessJump(code='ILLEGAL_USER_INPUT')
+            #验证器
+            validator = Validator({
+                'name': {
+                    'required': True,
+                    'type': 'string',
+                    'maxlength': 16,
+                },
+                'password': {
+                    'required': True,
+                    'type': 'string',
+                    'maxlength': 32,
+                },
+            })
+            #数据不符合验证器格式
+            if not validator.validate(request_data):
+                raise ViewProcessJump(code='ILLEGAL_USER_INPUT')
+
+            name = validator.document.get('name')
+            password = validator.document.get('password')
+
+            user_existed = User.query.filter(db.text('name = :temp')).params(temp=name).first()
+
+            if user_existed is None:
+                raise ViewProcessJump(code='USER_NAME_UNEXISTED')
+            elif user_existed.password != password:
+                raise  ViewProcessJump(code='PASSWORD_ERROR')
+
+            resp = {
+                'status': 'success',
+                'data': {
+                    'token': str(user_existed.id),
+                    'name': user_existed.name,
+
+                },
+            }
+
+            return jsonify(**resp)
+
+        except ViewProcessJump as e:
+            if e.code in (
+                    'ILLEGAL_USER_INPUT',
+            ):
+                abort(400)
+            elif e.code in (
+                    'USER_NAME_UNEXISTED',
+            ):
+                resp = {
+                    'status': 'fail',
+                    'data': {
+                        'code': API_FAIL_CODES['SIGN_UP']['USER_NAME_EXISTED'],
+                    },
+                }
+                return jsonify(**resp)
+            else:
+                assert False
+
+
+#登陆成功
+@app.route('/sign-in/success/')
+def sign_in_success():
+        return render_template('success.html')
+
+
+
+
+
+
+#------------------------------------注册登录-------------------------------------------
 
 #主页
 @app.route('/')
