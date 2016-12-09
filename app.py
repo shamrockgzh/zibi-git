@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqldb://root:root@127.0.0.1:3306/zibizheng?charset=utf8&use_unicode=0'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['UPLOAD_FOLDER'] = "/Users/liulizhe/Documents/zibizheng/views/uploads"#图片文件路径,绝对路径
+app.config['UPLOAD_FOLDER'] = "/Users/gaozhonghua/PycharmProjects/zibi-git/views/uploads"#图片文件路径,绝对路径/Users/gaozhonghua/PycharmProjects/zibi-git/static/img/3
 db = SQLAlchemy(app)
 
 #自闭症评估题库
