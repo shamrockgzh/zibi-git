@@ -22,10 +22,40 @@
 
     </div>
 </form>
+<script type="text/javascript" src="{{ url_for('static', filename='jquery-1.12.2.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='angular.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='css/bootstrap/js/js/bootstrap.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='angular-cookie.js') }}"></script>
+<script type="text/javascript">
 
-<script type="text/javascript" src="{{ url_for('static', filename='src/assets/lib/angular/angular.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='src/assets/lib/angular-cookie/angular-cookie.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='src/assets/js/sign_in.js' )}}"> </script>
+   ﻿var signUpApp = angular.module('bookhouse.main.app.signUp', ['ipCookie']);
+
+
+    signUpApp.controller('signUpCtrl', ['$scope', '$http','ipCookie','$window', function($scope, $http,ipCookie,$window) {
+        $scope.name = null;
+        $scope.password = null;
+        $scope.gender = '1';
+
+        $scope.Mysubmit=function() {
+            $http({
+                method: 'POST',
+                url: '/api/account/sign-up/',
+                data: {
+                    'name': $scope.name,
+                    'password': $scope.password,
+                    'gender':parseInt($scope.gender),
+                }
+            }).success(function (data, status, headers, config) {
+
+                ipCookie('access_token', data['data']['token'], {path: '/', expires: 14});
+                ipCookie('access_name', data['data']['name'], {path: '/', expires: 14});
+                $window.location = '/sign-in/success/'
+            }).error(function (data, status, headers, config) {
+
+            });
+        };
+    }]);
+  </script>
 
 </body>
 </html>
