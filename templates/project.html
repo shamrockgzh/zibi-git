@@ -28,10 +28,11 @@
   </head>
 <!-- NAVBAR
 ================================================== -->
-  <body>
-
-  ﻿<p><span>hello </span><span ng-bind="name"></span><span ng-click="deleteToken();">  退出</span></p>
-    <hr/>
+  <body ng-app="project" ng-controller="projectCtrl">
+  <div>
+  <input type="text" ng-model="name"><a ng-click="deleteToken()" >退出</a>
+  </div>
+  <hr/>
 
     <div class="navbar-wrapper">
       <div class="container">
@@ -170,5 +171,27 @@
     <script src="../../assets/js/docs.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.12.2.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='angular.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='css/bootstrap/js/js/bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='angular-cookie.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='ng-file-upload/ng-file-upload-all.js') }}"></script>
+    <script src="//cdn.bootcss.com/angular-sanitize/1.6.0-rc.2/angular-sanitize.min.js"></script>
+  <script type="text/javascript">
+
+   ﻿var projectApp = angular.module('project', ['ipCookie']);
+
+
+    projectApp.controller('projectCtrl', ['$scope', '$http','ipCookie','$window', function($scope, $http,ipCookie,$window) {
+        $scope.name = null;
+        $scope.name = ipCookie('access_name');
+
+      ﻿ $scope.deleteToken = function(){
+            ipCookie.remove('access_token',{path: '/'});
+            ipCookie.remove('access_name',{path: '/'});
+            window.location = '/';
+        }
+    }]);
+  </script>
   </body>
 </html>
