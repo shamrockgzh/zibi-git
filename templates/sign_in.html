@@ -28,22 +28,21 @@
 <script type="text/javascript" src="{{ url_for('static', filename='angular-cookie.js') }}"></script>
 <script type="text/javascript">
 
-   ﻿var signUpApp = angular.module('bookhouse.main.app.signUp', ['ipCookie']);
+   ﻿var signInApp = angular.module('bookhouse.main.app.signIn', ['ipCookie']);
 
 
-    signUpApp.controller('signInCtrl', ['$scope', '$http','ipCookie','$window', function($scope, $http,ipCookie,$window) {
+    signInApp.controller('signInCtrl', ['$scope', '$http','ipCookie','$window', function($scope, $http,ipCookie,$window) {
         $scope.name = null;
         $scope.password = null;
-        $scope.gender = '1';
 
         $scope.Mysubmit=function() {
+            $window.alert("test");
             $http({
                 method: 'POST',
-                url: '/api/account/sign-up/',
+                url: '/api/account/sign-in/',
                 data: {
                     'name': $scope.name,
                     'password': $scope.password,
-                    'gender':parseInt($scope.gender),
                 }
             }).success(function (data, status, headers, config) {
 
